@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # ⚙️ VSDSquadron FPGA Mini: I²C SSD1306 OLED Interfacing Project
+=======
+# ⚙️ I²C SSD1306 OLED Interfacing with VSDSquadron FPGA Mini (FM)
+>>>>>>> 0c2d58b (.)
 
 
 ## 📌 Project Overview
@@ -18,8 +22,8 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 3.  [I2C Protocol Description](#i2c-protocol-description)
 4.  [Files](#verilog-and-other-files)
 5.  [Toolchain Installation (Linux)](#toolchain-installation-and-setup-linux)
-6.  [Build and Flash Flow](#build-and-flash)
-7.  [Design Flow](#5-design-flow)
+6.  [Build and Flash Flow](#10-build-and-flash)
+7.  [Design Flow](#design-flow)
 8.  [Outputs](#outputs)
 9.  [Learning Outcomes](#learning-outcomes)
 10. [Summary](#summary)
@@ -88,7 +92,7 @@ The **Inter-Integrated Circuit (I²C)** protocol is a **synchronous serial commu
 - **Command/Data Control**: Some devices (like SSD1306 OLED) use a control byte to differentiate command bytes from data bytes.  
 
 ---
-### verilog and other Files
+### Verilog and Other Files
 
 <details>
 <summary><strong>Design Files</strong></summary>
@@ -735,17 +739,17 @@ iceprog -t
 
 Successful detection confirms the toolchain is ready.
 
-### next step to create the folder VSDSquadron_FM  for projects 
+### 5. next step to create the folder VSDSquadron_FM  for projects 
 
 ```bash
 mkdir -p ~/VSDSquadron_FM/I2C_Protocol
 ```
 
-#### Get into the protocol folder :
+#### 6. Get into the protocol folder :
 ```bash
 cd ~/VSDSquadron_FM/I2C_Protocol
 ```
-#### create a file for verilog files :
+#### 7. create a file for verilog files :
 
 ```bash
 gedit I2C.v 
@@ -755,7 +759,7 @@ gedit I2C.v
 gedit OLED.v
 ```
 
-#### create constraints.pcf
+#### 8. create constraints.pcf
 
 ```bash
 gedit constraints.pcf
@@ -763,7 +767,7 @@ gedit constraints.pcf
 Defines the physical pin mapping between logical signals (such as `SCL`, `SDA`, etc.) and the FPGA package pins.  
 This ensures correct electrical connectivity between the FPGA and external hardware components.
 
-#### create Makefile
+#### 9. create Makefile
 
 ```bash
 gedit Makefile
@@ -771,18 +775,18 @@ gedit Makefile
 Automates the complete FPGA toolchain flow and enforces the correct execution order of synthesis, place-and-route, and bitstream generation.  
 It allows the entire build process to be triggered with a single command, improving reproducibility and reducing manual errors.
 
-#### Build and Flash 
+#### 10. Build and Flash 
 
 ```bash
 make clean
 make
 sudo make flash
 ```
-### `make clean`
+ `make clean`
 Removes all previously generated build artifacts (`.json`, `.asc`, `.bin`) to ensure a clean and deterministic build environment.  
 This is recommended before every fresh synthesis run to avoid stale or conflicting outputs.
 
-### `make`
+`make`
 Executes the complete FPGA build flow defined in the `Makefile`, which includes:
 - Verilog synthesis using **Yosys**
 - Place-and-route using **nextpnr-ice40**
@@ -790,7 +794,7 @@ Executes the complete FPGA build flow defined in the `Makefile`, which includes:
 
 All Verilog source files and the pin constraints file are consumed during this process.
 
-### `sudo make flash`
+`sudo make flash`
 Programs the generated bitstream (`.bin`) onto the FPGA using **iceprog**.  
 Superuser privileges are typically required for USB device access.
 
@@ -799,7 +803,7 @@ Superuser privileges are typically required for USB device access.
 
 
 
-### 5. Design Flow 
+### Design Flow 
 
 ```
 Verilog Design (.v)
@@ -814,6 +818,8 @@ Bitstream Generation (icepack)
         ↓
 FPGA Programming (iceprog)
 ```
+---
+
 ## Outputs:
 
 ### World Map Display
@@ -828,13 +834,7 @@ FPGA Programming (iceprog)
 
 ## Display Methodology :
 
-### Display Block Diagram
-
 ![Image](https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg)
-
----
-
-### Display Partition
 
 ![Image](https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg)
 
@@ -868,6 +868,11 @@ Dr.Elango Sekar S [[Linkedin](https://www.linkedin.com/in/elango-sekar-8973b958/
 Associate Professor,Department of ECE ,Bannari Amman Institute Of Technology.
 
 ---
+
+## Acknowledgements
+
+We gratefully acknowledge the work of **Premraj02** [Github](https://github.com/Premraj02/OLED-Controller-Verilog) for the foundational reference repository OLED-Controller-Verilog. This project provided valuable insights into SSD1306 OLED interfacing using Verilog and served as a key learning resource that helped inform the design and implementation of our I²C-based OLED controller on the VSDSquadron FM platform.
+
 
 # Summary
 
