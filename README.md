@@ -2,7 +2,7 @@
 
 ## VSD Display
 
-![Image](https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/VSD.jpeg)
+<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/VSD.jpeg" width="50%" height="50%">
 
 ---
 
@@ -24,4 +24,4 @@
 
 ---
 
-<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/VSD.jpeg" width="50%" height="50%">
+
