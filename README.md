@@ -342,7 +342,7 @@ endmodule
 </details> 
 
 <details>
-<summary><strong>Reciever.v</strong></summary>
+<summary><strong>oled.v</strong></summary>
 
 ```verilog 
 
