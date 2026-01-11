@@ -831,7 +831,7 @@ FPGA Programming (iceprog)
 ## Display Methodology :
 
 <p align="center">
-<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg" width="20%" height="33%">
+<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg" width="20%" height="40%">
 <img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg" width="800">
 </p>
 
