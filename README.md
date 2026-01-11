@@ -24,7 +24,7 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 9.  [Learning Outcomes](#learning-outcomes)
 10. [Summary](#summary)
 
-## Key Features
+## 📂 Key Features
 
 - **Fully Synthesizable FPGA-Based I²C Master**  
   Implements the complete I²C protocol in Verilog HDL, including start/stop generation, slave addressing, and byte-level data transfer, without using any external microcontroller.
