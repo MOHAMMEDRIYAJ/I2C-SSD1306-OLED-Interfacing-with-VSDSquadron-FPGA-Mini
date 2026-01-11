@@ -831,7 +831,7 @@ FPGA Programming (iceprog)
 ## Display Methodology :
 
 <p align="center">
-<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg" width="50%" height="50%">
+<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg" width="20%" height="30%">
 <img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg" width="500">
 </p>
 
@@ -839,7 +839,9 @@ The display memory is divided into 32 independent blocks, where MEM2 contains 16
 
 A block is coded using Verilog initialization parameters such as:
 
-defparam Mem2.INIT_D = 256'h3f3f_3030_3030_381f_0f00_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000
+<pre>
+ defparam Mem2.INIT_D = 256'h3f3f_3030_3030_381f_0f00_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000
+</pre>
 
 In this encoding, the first hex digit represents the first nibble, the second hex digit is the nibble directly below it, the third hex digit is positioned to the right of the first nibble, and the fourth hex digit lies below the third and to the right of the second. This ordering continues across the block, allowing a clear left-to-right and top-to-bottom mapping between the Excel layout and the memory initialization.
 
