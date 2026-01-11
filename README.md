@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-# ⚙️ VSDSquadron FPGA Mini: I²C SSD1306 OLED Interfacing Project
-=======
-# ⚙️ I²C SSD1306 OLED Interfacing with VSDSquadron FPGA Mini (FM)
->>>>>>> 0c2d58b (.)
 
+# ⚙️ I²C SSD1306 OLED Interfacing with VSDSquadron FPGA Mini (FM)
 
 ## 📌 Project Overview
 
