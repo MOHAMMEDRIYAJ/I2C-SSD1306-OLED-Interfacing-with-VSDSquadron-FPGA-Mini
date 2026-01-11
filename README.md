@@ -640,6 +640,166 @@ clean:
 
 
 
+## Toolchain Installation and Setup (Linux)
+
+This project uses a **native Linux-based open-source FPGA toolchain** instead of a prebuilt `.vdi` (VirtualBox disk image).  
+Replicating the toolchain directly on Linux ensures transparency, flexibility, and easier debugging.
+
+---
+
+### 1. Install Required Packages
+
+Install all necessary FPGA, simulation, and USB programming tools using `apt`:
+
+```bash
+sudo apt update
+sudo apt install -y \
+git make gcc g++ \
+yosys \
+nextpnr-ice40 \
+fpga-icestorm \
+icepack \
+iverilog \
+gtkwave \
+libftdi1-dev \
+libusb-1.0-0-dev
+```
+
+
+### 2. Verify USB Detection
+
+After connecting the VSDSquadron board, verify USB detection:
+
+```bash
+lsusb
+```
+
+You should see an FTDI device listed.
+
+Test programmer access:
+
+```bash
+iceprog -t
+```
+
+If permission is denied, proceed to udev setup.
+
+### 3. Configure udev Rules (USB Access)
+
+Create a udev rule to allow non-root access to the board:
+
+```bash
+sudo gedit /etc/udev/rules.d/99-vsdsquadron-ftdi.rules
+
+```
+Add the following line:
+
+```
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
+```
+
+Reload udev rules:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Unplug and replug the VSDSquadron board.
+
+### 4. Toolchain Verification
+
+Verify installed tools:
+
+```bash
+yosys -V
+nextpnr-ice40 --version
+iverilog -V
+gtkwave --version
+iceprog -t
+```
+
+Successful detection confirms the toolchain is ready.
+
+### next step to create the folder VSDSquadron_FM  for projects 
+
+```bash
+mkdir -p ~/VSDSquadron_FM/I2C_Protocol
+```
+
+#### Get into the protocol folder :
+```bash
+cd ~/VSDSquadron_FM/I2C_Protocol
+```
+#### create a file for verilog files :
+
+```bash
+gedit I2C.v 
+```
+
+```bash
+gedit OLED.v
+```
+
+#### create constraints.pcf
+
+```bash
+gedit constraints.pcf
+```
+Defines the physical pin mapping between logical signals (such as `SCL`, `SDA`, etc.) and the FPGA package pins.  
+This ensures correct electrical connectivity between the FPGA and external hardware components.
+
+#### create Makefile
+
+```bash
+gedit Makefile
+```
+Automates the complete FPGA toolchain flow and enforces the correct execution order of synthesis, place-and-route, and bitstream generation.  
+It allows the entire build process to be triggered with a single command, improving reproducibility and reducing manual errors.
+
+#### Build and Flash 
+
+```bash
+make clean
+make
+sudo make flash
+```
+### `make clean`
+Removes all previously generated build artifacts (`.json`, `.asc`, `.bin`) to ensure a clean and deterministic build environment.  
+This is recommended before every fresh synthesis run to avoid stale or conflicting outputs.
+
+### `make`
+Executes the complete FPGA build flow defined in the `Makefile`, which includes:
+- Verilog synthesis using **Yosys**
+- Place-and-route using **nextpnr-ice40**
+- Bitstream generation using **icepack**
+
+All Verilog source files and the pin constraints file are consumed during this process.
+
+### `sudo make flash`
+Programs the generated bitstream (`.bin`) onto the FPGA using **iceprog**.  
+Superuser privileges are typically required for USB device access.
+
+---
+
+
+
+
+### 5. Design Flow 
+
+```bash
+Verilog Design (.v)
+        ↓
+Simulation (iverilog + GTKWave)
+        ↓
+Synthesis (Yosys)
+        ↓
+Place & Route (nextpnr-ice40)
+        ↓
+Bitstream Generation (icepack)
+        ↓
+FPGA Programming (iceprog)
+```
 
 
 
