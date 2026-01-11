@@ -1,4 +1,4 @@
-# ⚙️ FPGA-Based I²C SSD1306 OLED Interface on VSDSquadron FM
+# ⚙️ FPGA-Based I²C SSD1306 OLED Interface on VSDSquadron FPGA Mini
 
 
 ## 📌 Project Overview
