@@ -21,10 +21,6 @@ The SSD1306 OLED display is commonly used in embedded systems due to its low pow
 
 The objective of this project is to understand the practical aspects of I²C protocol operation, including device addressing, control byte formatting, and data transmission, while also gaining hands-on experience in driving a graphical display at the register and protocol level. This implementation serves as a foundational step toward more advanced embedded and SoC-based display applications.
 
-## about 
-This project demonstrates the implementation of FPGA-based  Inter-Integrated Circuit (I²C) communication protocol interface for a 0.96-inch 128×64 SSD1306 OLED display on the VSQUADRON FM platform using Verilog HDL. The design features a fully synthesizable I²C master, SSD1306-compliant initialization sequencing, and command/data selection through the I²C control byte mechanism. 
-
-The OLED operates in monochrome mode with page addressing, where display data is streamed from on-chip ROM to the display memory. The system periodically refreshes display data to ensure stable and reliable visual output. This project demonstrates low-level OLED interfacing, I²C protocol implementation, and practical FPGA-based digital design techniques.
 
 
 
