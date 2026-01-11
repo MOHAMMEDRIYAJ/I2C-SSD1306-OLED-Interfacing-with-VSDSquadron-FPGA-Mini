@@ -13,7 +13,7 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (IÂ
 
 ## Table of Contents
 
-1.  [Key Features](#key-features)
+1.  [Key Features](#ðŸ“‚-key-features)
 2.  [Specifications](#specifications)
 3.  [I2C Protocol Description](#i2c-protocol-description)
 4.  [Files](#verilog-and-other-files)
