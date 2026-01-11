@@ -1,4 +1,4 @@
-# ⚙️ OLED 1306 I2C DISPLAY WITH VSDSQUADRON FM 
+# ⚙️ FPGA-Based I²C SSD1306 OLED Interface on VSDSquadron FM
 
 
 ## 📌 Project Overview
@@ -10,6 +10,19 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 
 <img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/VSD.jpeg" width="90%" height="90%">
 
+
+## Table of Contents
+
+1.  [Key Features](#key-features)
+2.  [Specifications](#specifications)
+3.  [I2C Protocol Description](#i2c-protocol-description)
+4.  [Files](#verilog-and-other-files)
+5.  [Toolchain Installation (Linux)](#toolchain-installation-and-setup-linux)
+6.  [Build and Flash Flow](#build-and-flash)
+7.  [Design Flow](#5-design-flow)
+8.  [Outputs](#outputs)
+9.  [Learning Outcomes](#learning-outcomes)
+10. [Summary](#summary)
 
 ## Key Features
 
@@ -61,7 +74,7 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 
 ---
 
-## ⛓️  I²C Protocol Description
+## I2C Protocol Description
 
 The **Inter-Integrated Circuit (I²C)** protocol is a **synchronous serial communication** standard that connects multiple devices using only **two lines**:  
 
@@ -70,11 +83,12 @@ The **Inter-Integrated Circuit (I²C)** protocol is a **synchronous serial commu
 
 ### Key Points
 - **Master-Slave Architecture**: Master controls the clock; slaves respond to requests.  
-- **Data Transfer**: 8-bit bytes sent with an ACK/NACK from the receiver.  
+- **Data Transfer**: 8-bit bytes sent with an ACK/NACK from the Oled.  
 - **Start/Stop Conditions**: Start signals the beginning; Stop signals the end of communication.  
 - **Command/Data Control**: Some devices (like SSD1306 OLED) use a control byte to differentiate command bytes from data bytes.  
 
 ---
+### verilog and other Files
 
 <details>
 <summary><strong>Design Files</strong></summary>
@@ -824,8 +838,40 @@ FPGA Programming (iceprog)
 
 ![Image](https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg)
 
+The display memory is divided into 32 independent blocks, where MEM2 contains 16 blocks and MEM1 contains the other 16 blocks. Each block represents a vertical-aligned pixel group and is encoded as 32 nibbles. Every nibble corresponds to a vertical slice of pixels and is represented directly as a hexadecimal digit in the code, with the bottom pixel as the LSB and the top pixel as the MSB.
+
+A block is coded using Verilog initialization parameters such as:
+
+defparam Mem2.INIT_D = 256'h3f3f_3030_3030_381f_0f00_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000
+
+In this encoding, the first hex digit represents the first nibble, the second hex digit is the nibble directly below it, the third hex digit is positioned to the right of the first nibble, and the fourth hex digit lies below the third and to the right of the second. This ordering continues across the block, allowing a clear left-to-right and top-to-bottom mapping between the Excel layout and the memory initialization.
+
 ---
 
+## Learning Outcomes
+
+This project helped me understand the complete FPGA design flow on the VSDSquadron FM  using Verilog HDL and an open-source toolchain. I gained practical experience with the I²C protocol, SSD1306 OLED interfacing, pin constraints, and FPGA programming on Linux. Overall, it strengthened my skills in digital design, FPGA workflows, and hardware–software integration.
 
 
+## 👥 Team Members:
+
+Mohammed Riyaj J, Bannari Amman Institute Of Technology [[Linkedin](https://www.linkedin.com/in/mohammedriyaj786/)]  [[Github](https://github.com/MOHAMMEDRIYAJ)]
+
+Mohanapriyan P, Bannari Amman Institute Of Technology [[Linkedin](https://www.linkedin.com/in/mohanapriyan-p-b94962325/)]  [[Github](https://github.com/MOHANAPRIYANP16)]
+
+---
+
+We are grateful to our VLSI faculty for his consistent support and valuable guidance throughout the project.
+
+Dr.Elango Sekar S [[Linkedin](https://www.linkedin.com/in/elango-sekar-8973b958/)]  [[Github](https://github.com/eceelango)]
+
+Associate Professor,Department of ECE ,Bannari Amman Institute Of Technology.
+
+---
+
+# Summary
+
+This project implements an I²C-based interface between the VSDSquadron FM FPGA and a 0.96-inch SSD1306 OLED display using Verilog HDL. A synthesizable I²C master is designed to handle display initialization and data transfer over the SDA and SCL lines. Graphic patterns, including a world map and the VSD , are stored in FPGA on-chip memory and rendered on a 128×64 monochrome OLED.
+
+The project demonstrates end-to-end FPGA display interfacing, including protocol-level communication, finite-state machine control, and reliable frame refresh using an open-source ICE40 toolchain on Linux. It serves as a practical learning platform for digital design, embedded graphics handling, and hardware–software co-design using the VSDSquadron FM board.
 
