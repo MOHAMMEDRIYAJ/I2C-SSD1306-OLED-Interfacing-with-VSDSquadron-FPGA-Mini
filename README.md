@@ -832,7 +832,7 @@ FPGA Programming (iceprog)
 
 <p align="center">
 <img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display.jpeg" width="20%" height="100%">
-<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg" width="800">
+<img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/Display%20Partition.jpeg" width="775">
 </p>
 
 The display memory is divided into 32 independent blocks, where MEM2 contains 16 blocks and MEM1 contains the other 16 blocks. Each block represents a vertical-aligned pixel group and is encoded as 32 nibbles. Every nibble corresponds to a vertical slice of pixels and is represented directly as a hexadecimal digit in the code, with the bottom pixel as the LSB and the top pixel as the MSB.
