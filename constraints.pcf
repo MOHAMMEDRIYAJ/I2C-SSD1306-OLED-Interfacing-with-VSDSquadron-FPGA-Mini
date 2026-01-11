@@ -1,0 +1,3 @@
+set_io FPS 39
+set_io SCL 27
+set_io SDA 28
