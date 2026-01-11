@@ -1,8 +1,6 @@
 
 # ⚙️ I2C SSD1306 OLED Interfacing with VSDSquadron FPGA Mini 
-
 ---
-
 ## 📌 Project Overview
 
 This project demonstrates the implementation of the Inter-Integrated Circuit (I²C) communication protocol using Verilog HDL on the **VSDSquadron FM** development board to interface with a **0.96-inch SSD1306-based OLED display (128×64 resolution)**. I²C is a widely used serial communication protocol that enables efficient data transfer between digital devices using only two signal lines: Serial Data (SDA) and Serial Clock (SCL).
