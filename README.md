@@ -24,15 +24,15 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 
 ## Specifications
 
-### Hardware Specifications
+### Hardware :
 
-#### FPGA Specifications
+#### FPGA 
 - **FPGA Platform**: VSD SQUADRON FM 
 - **I/O Operating Voltage**: 3.3 V
 - **Clock Source**: On-chip high-frequency oscillator (FPGA internal)
 - **Memory**: On-chip FPGA RAM used for storing display graphic data
 
-#### OLED Display Specifications
+#### OLED Display 
 - **Display Module**: 0.96-inch OLED
 - **Display Controller**: SSD1306
 - **Display Resolution**: 128 × 64 pixels
@@ -41,9 +41,9 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 - **Operating Voltage**: 3.3 V
 - **Addressing Mode**: Page addressing mode
 
-###  Software Specifications
+###  Software :
 
-#### Software Environment
+#### Environment
 - **OS**: Linux (Ubuntu-based)
 - **Purpose**: Development environment for FPGA design, simulation, synthesis, and version control
 
@@ -57,16 +57,548 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 | 4 | nextpnr | Perform placement and routing for the iCE40 FPGA |
 | 5 | icepack | Generate the FPGA bitstream from the placed and routed design |
 | 6 | iceprog | Program the generated bitstream onto the FPGA hardware |
-| 7 | icetime | Perform timing analysis on the synthesized design (optional but recommended) |
+
 
 ---
 
-## ⛓️ I2C
-The SSD1306 OLED display is commonly used in embedded systems due to its low power consumption, high contrast, and compact form factor. By leveraging the I²C interface, the VSD Squadron Mini can reliably transmit command and display data to the OLED, enabling the rendering of text, symbols, and simple graphics.
+## ⛓️  I²C Protocol Description
 
-The objective of this project is to understand the practical aspects of I²C protocol operation, including device addressing, control byte formatting, and data transmission, while also gaining hands-on experience in driving a graphical display at the register and protocol level. This implementation serves as a foundational step toward more advanced embedded and SoC-based display applications.
+The **Inter-Integrated Circuit (I²C)** protocol is a **synchronous serial communication** standard that connects multiple devices using only **two lines**:  
+
+- **SDA** – Serial Data  
+- **SCL** – Serial Clock  
+
+### Key Points
+- **Master-Slave Architecture**: Master controls the clock; slaves respond to requests.  
+- **Data Transfer**: 8-bit bytes sent with an ACK/NACK from the receiver.  
+- **Start/Stop Conditions**: Start signals the beginning; Stop signals the end of communication.  
+- **Command/Data Control**: Some devices (like SSD1306 OLED) use a control byte to differentiate command bytes from data bytes.  
 
 ---
+
+<details>
+<summary><strong>Design Files</strong></summary>
+
+<details>
+<summary><strong>I2C.v</strong></summary>
+
+```verilog
+module I2C(
+input clk,                    //clock input
+input start,                   //start signal
+input DCn,                     //1 -> Data/ 0 -> Command
+input [7:0]Data,               //8-bit Data
+output reg busy=0,             //I2C busy
+output reg scl=1,              //Serial clock
+output reg sda=1);             //Serial data
+
+parameter IDEL  = 0;
+parameter START = 1;
+parameter ADDR  = 2;
+parameter CBYTE = 3;
+parameter DATA  = 4;
+parameter STOP  = 5;
+parameter T_WAIT= 50;        //=wait_time*clk_frequency  =5us*12MHz 4
+
+reg DCn_r=0;
+reg [2:0]state=0;
+reg [3:0]i=0;
+reg [3:0]step=0;
+reg [12:0]delay=1;
+reg [7:0]slave= 8'b01111000;   //slave address
+reg [7:0]cbyte= 8'b10000000;   //Control byte for command
+reg [7:0]dbyte= 8'b01000000;   //Control byte for data
+reg [7:0]data=  0;
+
+always @(posedge clk)
+begin
+     
+if(delay != 1)                 //if delay is not zero, wait for clock cycles specified by delay
+begin
+ delay<= delay-1;
+end else begin                 //if delay is zero, proceed
+ case(state)
+ IDEL:begin
+ 	scl<=1;
+ 	sda<=1;
+ 	if(start) 
+ 	begin                  //when start signal is recieved,
+ 	   DCn_r<=DCn;         //fetch data or command?
+ 	   data<=Data;         //detch data/command to transmit
+ 	   busy<=1;            //update busy flag
+ 	   state<= START;      //start transmission
+ 	   step<=0;            //sub state = 0    
+ 	end
+      end
+      
+ START:begin                   //start signal. 
+ 	case(step)
+ 	0:begin
+ 	    sda<=0;            //SDA goes low
+ 	    delay<=T_WAIT;     //wait for T_WAIT cycles
+ 	    step<=step+1;      
+ 	  end
+ 	1:begin
+ 	    scl<=0;            //SCL goes low
+ 	    // delay<=T_WAIT;     //Wait for T_WAIT cycles
+ 	    //step<=step+1;
+	    state<=ADDR;       //Start sending address
+ 	    step<=0;
+ 	  end
+ 	// 2:begin
+ 	//     state<=ADDR;       //Start sending address
+ 	//     step<=0;
+ 	//   end
+ 	endcase
+       end
+
+ ADDR:begin
+ 	case(step)
+ 	0:begin
+ 	  if(i<8)              //check if all bits are transmitted
+ 	  begin
+ 	      scl<=0;          //SCL goes low
+ 	      step<=1;
+ 	  end else if(i==8)    //ACK bit
+ 	  begin
+ 	      scl<=0;
+ 	      sda<=0;
+ 	      delay<=T_WAIT;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	  end
+ 	1:begin
+ 	      sda<=slave[7-i];  //transmit address bit
+ 	      delay<=T_WAIT-1;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	2:begin
+ 	    if(i<9)
+ 	    begin
+ 	      scl<=1;           //SCL goes high
+ 	      delay<=T_WAIT;    //Delay
+ 	      step<=0;
+ 	    end else begin
+ 	      scl<=1;
+ 	      delay<=T_WAIT;
+ 	      step<=3;
+ 	    end
+ 	  end
+ 	3:begin
+ 	      scl<=0;           //SCL goes low
+ 	      sda<=0;
+ 	      delay<=T_WAIT;    //Delay
+ 	      step<=4;
+ 	  end
+ 	4:begin
+ 	      step<=0;
+ 	      i<=0;
+ 	      state<=CBYTE;     //transmit control byte
+ 	  end
+ 	endcase
+      end
+      
+ CBYTE:begin
+ 	case(step)
+ 	0:begin
+ 	  if(i<8)
+ 	  begin
+ 	      scl<=0;
+ 	      step<=1;
+ 	  end else if(i==8)
+ 	  begin
+ 	      scl<=0;
+ 	      sda<=0;
+ 	      delay<=T_WAIT;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	  end
+ 	1:begin
+ 	      if(DCn_r)
+ 	      begin
+ 	      	sda<=dbyte[7-i];
+ 	      end else begin
+ 	      	sda<=cbyte[7-i];
+ 	      end
+ 	      delay<=T_WAIT-1;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	2:begin
+ 	    if(i<9)
+ 	    begin
+ 	      scl<=1;
+ 	      delay<=T_WAIT;
+ 	      step<=0;
+ 	    end else begin
+ 	      scl<=1;
+ 	      delay<=T_WAIT;
+ 	      step<=3;
+ 	    end
+ 	  end
+ 	3:begin
+ 	      scl<=0;
+ 	      sda<=0;
+ 	      delay<=T_WAIT;
+ 	      step<=4;
+ 	  end
+ 	4:begin
+ 	      step<=0;
+ 	      i<=0;
+ 	      state<=DATA;
+ 	  end
+ 	
+ 	endcase
+      end
+      
+ DATA:begin
+ 	case(step)
+ 	0:begin
+ 	  if(i<8)
+ 	  begin
+ 	      scl<=0;
+ 	      step<=1;
+ 	  end else if(i==8)
+ 	  begin
+ 	      scl<=0;
+ 	      sda<=0;
+ 	      delay<=T_WAIT;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	  end
+ 	1:begin
+ 	      sda<=data[7-i];
+ 	      delay<=T_WAIT-1;
+ 	      i<=i+1;
+ 	      step<=2;
+ 	  end
+ 	2:begin
+ 	    if(i<9)
+ 	    begin
+ 	      scl<=1;
+ 	      delay<=T_WAIT;
+ 	      step<=0;
+ 	    end else begin
+ 	      scl<=1;
+ 	      delay<=T_WAIT;
+ 	      step<=3;
+ 	    end
+ 	  end
+ 	3:begin
+ 	      scl<=0;
+ 	      sda<=0;
+ 	      delay<=T_WAIT;
+ 	      step<=4;
+ 	  end
+ 	4:begin
+ 	      step<=0;
+ 	      i<=0;
+ 	      state<=STOP;
+ 	  end
+ 	
+ 	endcase
+      end   
+ STOP:begin
+ 	case(step)
+ 	0:begin
+ 	    scl<=1;         //SCL goes high
+ 	    sda<=0;         //SDA goes low
+ 	    delay<=T_WAIT;     //Wait
+ 	    step<=step+1;
+ 	  end
+ 	1:begin
+ 	    state<=IDEL;   //IDLE, SDA goes high
+ 	    busy<=0;       //Update busy flag
+ 	    step<=0; 
+ 	  end
+ 	endcase
+       end    
+
+ endcase
+end
+end
+
+
+endmodule
+```
+</details> 
+
+<details>
+<summary><strong>Reciever.v</strong></summary>
+
+```verilog 
+
+module OLED(    
+output SCL,         //OLED serial Clock
+output SDA,         //OLED serial Data
+output FPS         //Output to measure FPS
+);
+
+parameter T=5;     //Delay betweeen two instructions
+
+//--------------I2C interface-----------------------
+wire Busy;
+wire Clk;              
+reg Start=0;
+reg DCn=0;
+reg [7:0]DATA=0;
+
+reg [15:0]d=0;
+reg [12:0]delay=0;
+reg [7:0] addr=0;
+reg [6:0]col=0;
+reg [5:0]step=0;
+reg [2:0]page=0;
+reg bank=0;
+reg mem=0;
+reg fps=0;
+reg [23:0] pwr_delay = 24'd8_000_000;  // ~150 ms @ ~48 MHz
+
+
+wire [15:0] dout1;
+wire [15:0] dout2;
+
+
+//----------Module instantiation-----------------------------------------------------------
+
+SB_HFOSC #(.CLKHF_DIV("0b01")) u_SB_HFOSC (
+  .CLKHFPU(1'b1),
+  .CLKHFEN(1'b1),
+  .CLKHF(Clk)
+);  
+I2C Mod(.clk(Clk),.start(Start),.DCn(DCn),.Data(DATA),.busy(Busy),.scl(SCL),.sda(SDA));   //I2C Master
+SB_RAM40_4K Mem1(
+  .WDATA(16'd0),
+  .MASK(16'd0),
+  .WADDR(11'd0),
+  .WE(1'b0),          // ROM: write disabled
+  .WCLKE(1'b0),
+  .WCLK(1'b0),
+  .RDATA(dout1),
+  .RADDR({3'b0,addr}),
+  .RE(1'b1),
+  .RCLKE(1'b1),
+  .RCLK(Clk)
+);
+SB_RAM40_4K Mem2(
+  .WDATA(16'd0),
+  .MASK(16'd0),
+  .WADDR(11'd0),
+  .WE(1'b0),          // ROM: write disabled
+  .WCLKE(1'b0),
+  .WCLK(1'b0),
+  .RDATA(dout2),
+  .RADDR({3'b0,addr}),
+  .RE(1'b1),
+  .RCLKE(1'b1),
+  .RCLK(Clk)
+);
+//------------------------------------------------------------------------------------------
+
+always @(posedge Clk)
+begin
+  if(mem)                //choose memory module
+     begin
+        d<=dout2;         //Mem2
+     end
+  else
+     begin
+        d<=dout1;         //Mem1
+     end
+end
+
+always @(posedge Clk)
+begin
+  if (pwr_delay != 0)
+  begin
+    pwr_delay <= pwr_delay - 1;
+    Start <= 0;       // Do NOT start I2C
+    step  <= 0;       // Hold FSM at step 0
+    delay <= 0;
+  end
+  // -------- Normal OLED operation --------
+  else
+  begin
+    Start <= 0;  
+     if(delay!=0)
+     begin
+        delay<=delay-1;             //Handle delay
+     end 
+  else 
+     begin
+        if(Busy)
+           begin
+              Start<=0;              //If I2C bus is busy, add delay of T cycles 
+              delay<=T;              //Delay between two instructions
+           end 
+        else
+           begin
+              case(step)
+              0:begin
+          	   DATA<=8'hAF;      //set display on
+          	   DCn<=0;
+	           Start<=1;
+         	   step<=step+1;
+	           delay<=T;
+        	end
+      	      1:begin
+          	   DATA<=8'hA6;      //set normal mode
+	           DCn<=0;
+         	   Start<=1;
+	           step<=step+1;
+         	   delay<=T;
+	        end
+      	      2:begin
+          	   DATA<=8'h20;      //set addressing mode
+  	           DCn<=0;
+         	   Start<=1;
+	           step<=step+1;
+        	   delay<=T;
+ 	        end
+      	      3:begin
+         	   DATA<=8'h02;      //set addressing mode to page
+	           DCn<=0;
+         	   Start<=1;
+	           step<=step+1;
+	           delay<=T;
+ 	        end
+      	      4:begin
+	           DATA<=8'h8D;      //charge pump setting
+         	   DCn<=0;
+	           Start<=1;
+         	   step<=step+1;
+	           delay<=T;
+        	end
+      	      5:begin
+	           DATA<=8'h14;      //charge pump on
+         	   DCn<=0;
+	           Start<=1;
+         	   step<=step+1;
+	           delay<=T;
+	        end
+      	      6:begin
+        	   DATA<=8'h00;      //set column address lower nibble to 0
+	           DCn<=0;
+         	   Start<=1;
+	           step<=step+1;
+	           delay<=T;
+        	end
+      	      7:begin
+	           DATA<=8'h10;      //set column address higher nibble to 0
+         	   DCn<=0;
+	           Start<=1;
+         	   step<=step+1;
+ 	           delay<=T;
+        	end
+      	      8:begin
+	           DATA<=8'hB0+page; //set page number
+	           DCn<=0;
+	           Start<=1;
+	           step<=9;
+ 	           delay<=T;
+        	end
+      	      9:begin
+   	           if(bank==0)
+          	      begin
+ 	                 DATA<=d[7:0];      //send data from lower bank
+            	         bank<=1;
+  	             end
+          	   else
+ 	              begin	
+            	         DATA<=d[15:8];      //send data from upper bank
+   	                 addr<=addr+1;       //increment address
+	                 if(addr==8'b11111111)
+		            begin
+		               mem<=~mem;    //After reading Mem1, read Mem2
+		               addr<=0;      //Reset address
+		            end
+	                 bank<=0;
+ 	              end
+          	   DCn<=1;
+          	   Start<=1;
+          	   delay<=T;
+          	   col<=col+1;                //Increment column address
+          	   if(col==127)
+          	      begin
+	                 page<=page+1;        //After 128 columns, change page
+	                 if(page==7)
+   	                    begin
+            	               fps<=1;
+ 		            end 
+ 		         else 
+ 		            begin
+		               fps<=0;
+		            end
+	                step<=8;             //Send page address
+          	      end
+      	        end
+              endcase
+           end
+     end
+end
+end
+
+assign FPS=fps;
+
+
+//------------Replace this part------------------------------------------------------------
+
+defparam Mem2.INIT_F = 256'h000000000000001F1F1F0000001F1F1F00000000000000000000000000000000;
+defparam Mem2.INIT_E = 256'h0000_3f3f_3131_3131_3131_3100_0000_0000_0000_0000_0000_0000_0000_0000_0000_0030;
+//defparam Mem2.INIT_E = 256'h00_003f_3f31_3131_3131_3131_0000_0000_0000_0000_0000_0000_0000_0000_0000_000000;
+defparam Mem2.INIT_D = 256'h3f3f_3030_3030_381f_0f00_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_C = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_B = 256'h0000_0000_0000_00e0_f0f8_3c3e_3cf8_f0e0_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem2.INIT_A = 256'h0000_c6c6_c6c6_c6c6_c6fe_fe00_0000_0000_0000_0000_0000_0000_0000_0000_0000_0006;
+
+defparam Mem2.INIT_9 = 256'hfefe_0606_0606_0efc_f800_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem2.INIT_8 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem2.INIT_7 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_6 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_5 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_4 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_3 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_2 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_1 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem2.INIT_0 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_F = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_E = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_D = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_C = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_B = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_A = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_9 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_8 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_7 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+defparam Mem1.INIT_6 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_5 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_4 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_3 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_2 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_1 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+defparam Mem1.INIT_0 = 256'h0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+
+endmodule
+```
+</details> 
+
+</details> 
+
+ 
+
 
 
 
