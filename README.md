@@ -1,9 +1,9 @@
-# ⚙️ OLED 1306 I2C DISPLAY WITH VSD SQUADRON FM 
+# ⚙️ OLED 1306 I2C DISPLAY WITH VSDSQUADRON FM 
 
 
 ## 📌 Project Overview
 
-This project demonstrates the implementation of the Inter-Integrated Circuit (I²C) communication protocol using Verilog HDL on the **VSD Squadron FM** development board to interface with a **0.96-inch SSD1306-based OLED display (128×64 resolution)**. I²C is a widely used serial communication protocol that enables efficient data transfer between digital devices using only two signal lines: Serial Data (SDA) and Serial Clock (SCL).
+This project demonstrates the implementation of the Inter-Integrated Circuit (I²C) communication protocol using Verilog HDL on the **VSDSquadron FM** development board to interface with a **0.96-inch SSD1306-based OLED display (128×64 resolution)**. I²C is a widely used serial communication protocol that enables efficient data transfer between digital devices using only two signal lines: Serial Data (SDA) and Serial Clock (SCL).
 
  As a demonstration, a **World map and the VSD** are rendered on the OLED display. This project serves as a practical example of FPGA-based peripheral interfacing and digital system design, making it suitable for academic learning and hands-on hardware development.
 
@@ -27,7 +27,7 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 ### Hardware :
 
 #### FPGA 
-- **FPGA Platform**: VSD SQUADRON FM 
+- **FPGA Platform**: VSDSQUADRON FM 
 - **I/O Operating Voltage**: 3.3 V
 - **Clock Source**: On-chip high-frequency oscillator (FPGA internal)
 - **Memory**: On-chip FPGA RAM used for storing display graphic data
@@ -47,7 +47,7 @@ This project demonstrates the implementation of the Inter-Integrated Circuit (I�
 - **OS**: Linux (Ubuntu-based)
 - **Purpose**: Development environment for FPGA design, simulation, synthesis, and version control
 
-#### FPGA Toolchain Workflow
+#### Tools
 
 | Step | Tool Name | Purpose |
 |------|----------|---------|
@@ -597,7 +597,48 @@ endmodule
 
 </details> 
 
- 
+<details>
+<summary><strong>Constraints.pcf</strong></summary>
+
+```
+set_io FPS 39
+set_io SCL 27
+set_io SDA 28
+
+```
+</details>
+
+
+<details>
+<summary><strong>Makefile</strong></summary>
+
+```makefile
+# Top-level module name
+TOP = OLED
+
+# Constraint file
+PCF = constraints.pcf
+
+# Source files (NO simulation stubs here)
+SRC = OLED.v I2C.v
+
+all: build
+
+build:
+	yosys -p "read_verilog $(SRC); synth_ice40 -top $(TOP) -json $(TOP).json"
+	nextpnr-ice40 --up5k --package sg48 --json $(TOP).json --pcf $(PCF) --asc $(TOP).asc
+	icepack $(TOP).asc $(TOP).bin
+
+flash:
+	iceprog $(TOP).bin
+
+clean:
+	rm -f *.json *.asc *.bin
+
+```
+ </details> 
+
+
 
 
 
