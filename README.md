@@ -787,7 +787,7 @@ Superuser privileges are typically required for USB device access.
 
 ### 5. Design Flow 
 
-```bash
+```
 Verilog Design (.v)
         ↓
 Simulation (iverilog + GTKWave)
