@@ -796,9 +796,6 @@ Superuser privileges are typically required for USB device access.
 
 ---
 
-
-
-
 ### Design Flow 
 
 ```
@@ -814,6 +811,7 @@ Bitstream Generation (icepack)
         ↓
 FPGA Programming (iceprog)
 ```
+
 ---
 
 ## Outputs:
@@ -822,11 +820,11 @@ FPGA Programming (iceprog)
 
 ![Image](https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/World%20Map.jpeg)
 
----
-
 ### VSD Display
 
 <img src="https://github.com/MOHAMMEDRIYAJ/OLED-1306-I2C-with-VSQUADRON-FM-/blob/main/Images/VSD.jpeg" width="90%" height="90%">
+
+---
 
 ## Display Methodology :
 
@@ -851,6 +849,7 @@ In this encoding, the first hex digit represents the first nibble, the second he
 
 This project helped me understand the complete FPGA design flow on the VSDSquadron FM  using Verilog HDL and an open-source toolchain. I gained practical experience with the I²C protocol, SSD1306 OLED interfacing, pin constraints, and FPGA programming on Linux. Overall, it strengthened my skills in digital design, FPGA workflows, and hardware–software integration.
 
+---
 
 ## 👥 Team Members:
 
@@ -872,6 +871,7 @@ Associate Professor,Department of ECE ,Bannari Amman Institute Of Technology.
 
 We gratefully acknowledge the work of **Premraj02** [Github](https://github.com/Premraj02/OLED-Controller-Verilog) for the foundational reference repository OLED-Controller-Verilog. This project provided valuable insights into SSD1306 OLED interfacing using Verilog and served as a key learning resource that helped inform the design and implementation of our I²C-based OLED controller on the VSDSquadron FM platform.
 
+---
 
 # Summary
 
@@ -879,3 +879,4 @@ This project implements an I²C-based interface between the VSDSquadron FM FPGA 
 
 The project demonstrates end-to-end FPGA display interfacing, including protocol-level communication, finite-state machine control, and reliable frame refresh using an open-source ICE40 toolchain on Linux. It serves as a practical learning platform for digital design, embedded graphics handling, and hardware–software co-design using the VSDSquadron FM board.
 
+---
