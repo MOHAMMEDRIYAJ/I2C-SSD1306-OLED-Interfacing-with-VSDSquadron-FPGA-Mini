@@ -828,7 +828,7 @@ FPGA Programming (iceprog)
 ## Display Methodology :
 
 <p align="center">
-<img src="https://github.com/MOHAMMEDRIYAJ/I2C-SSD1306-OLED-Interfacing-with-VSDSquadron-FPGA-Mini/blob/main/Images/Display%20content%20.png" >
+<img src="https://github.com/MOHAMMEDRIYAJ/I2C-SSD1306-OLED-Interfacing-with-VSDSquadron-FPGA-Mini/blob/main/Images/Display%20Blocks.png" >
 </p>
 
 The display memory is divided into 32 independent blocks, where MEM2 contains 16 blocks and MEM1 contains the other 16 blocks. Each block represents a vertical-aligned pixel group and is encoded as 32 nibbles. Every nibble corresponds to a vertical slice of pixels and is represented directly as a hexadecimal digit in the code, with the bottom pixel as the LSB and the top pixel as the MSB.
