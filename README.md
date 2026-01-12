@@ -868,7 +868,7 @@ Associate Professor,Department of ECE ,Bannari Amman Institute Of Technology.
 
 ## Acknowledgements
 
-We would like to express our sincere gratitude to [[Kunal Ghosh](https://www.linkedin.com/in/kunal-ghosh-vlsisystemdesign-com-28084836/)] , Founder of VSD (VLSI System Design), for providing the VSDSquadron FM platform and this valuable learning opportunity. This initiative enabled us to gain hands-on experience with FPGA design using open-source tools and significantly contributed to our understanding of practical VLSI workflows.
+We would like to express our sincere gratitude to [Kunal Ghosh](https://www.linkedin.com/in/kunal-ghosh-vlsisystemdesign-com-28084836/) , Founder of VSD (VLSI System Design), for providing the VSDSquadron FM platform and this valuable learning opportunity. This initiative enabled us to gain hands-on experience with FPGA design using open-source tools and significantly contributed to our understanding of practical VLSI workflows.
 
 We are also gratefully acknowledge the work of **Premraj02** [Github](https://github.com/Premraj02/OLED-Controller-Verilog) for the foundational reference repository OLED-Controller-Verilog. This project provided valuable insights into SSD1306 OLED interfacing using Verilog and served as a key learning resource that helped inform the design and implementation of our I²C-based OLED controller on the VSDSquadron FM platform.
 
